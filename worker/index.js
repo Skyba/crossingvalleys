@@ -38,7 +38,7 @@ async function route(request, env, url) {
   if (path.startsWith("/wp-content/uploads/")) {
     const rel = decodeURIComponent(path.slice("/wp-content/uploads/".length));
     const to = uploads[rel] || uploads[rel.replace(/-\d+x\d+(\.\w+)$/, "$1")];
-    if (to) return redirect(url, to);
+    if (to && to !== path) return redirect(url, to);
   }
   const slash = path.endsWith("/") ? path : path + "/";
   if (MOVED[slash]) return redirect(url, MOVED[slash]);

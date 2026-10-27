@@ -388,6 +388,21 @@ await importPosts();
 await importPages();
 await importPortfolio();
 writeFileSync(MISSES, JSON.stringify([...misses].sort(), null, 1) + "\n");
+// Media-library images no page uses keep their old URL: copied web-sized to public/wp-content/uploads/<same path>.
+for (const m of media) {
+  const rel = decodeURIComponent((m.source_url.match(/\/wp-content\/uploads\/(.+)$/) || [])[1] || "");
+  if (!rel || uploadMap[rel]) continue;
+  const dir = join(PUBLIC, "wp-content/uploads", rel.split("/").slice(0, -1).join("/"));
+  const r = await image(m.source_url, dir, `/wp-content/uploads/${rel.split("/").slice(0, -1).join("/")}/`, { medium: false });
+  if (r) uploadMap[rel] = `/wp-content/uploads/${rel.split("/").slice(0, -1).join("/")}/${r.name}`;
+}
+
+// An image edited in WordPress (cropped, rotated) became <name>-e<timestamp>; the original <name> URL goes there too.
+for (const [rel, to] of Object.entries(uploadMap)) {
+  const orig = rel.replace(/-e\d{13}(\.\w+)$/, "$1");
+  if (orig !== rel) uploadMap[orig] ??= to;
+}
+
 // WordPress gave every upload its own "attachment page": send each to the page it was attached to, else to the image.
 const attachments = {};
 for (const m of media) {

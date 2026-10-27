@@ -179,7 +179,7 @@ $$(".cv-slider").forEach((s) => {
   auto();
 });
 
-// ---- recent-posts carousel under each post: 3 / 2 / 1 visible, one step every 9 s ----
+// ---- recent-posts carousel under each post: 3 visible on desktop, 2 below, one step every 9 s ----
 $$(".cv-carousel").forEach((c) => {
   const items = $$(".kt-slick-slide", c);
   const track = document.createElement("div");
@@ -191,7 +191,7 @@ $$(".cv-carousel").forEach((c) => {
   c.append(list);
   c.classList.add("slick-initialized");
   let i = 0, timer;
-  const visible = () => (innerWidth >= 768 ? 3 : innerWidth >= 544 ? 2 : 1);
+  const visible = () => (innerWidth >= 992 ? 3 : 2);
   const render = () => {
     const v = visible(), w = list.clientWidth / v;
     i = Math.min(i, items.length - v);
