@@ -1,7 +1,7 @@
 ---
 import type { Comment } from "../lib/content";
 import { longDate } from "../lib/content";
-const { all, parent, depth, url } = Astro.props as { all: Comment[]; parent: number; depth: number; url: string };
+const { all, parent, depth, url, open = false } = Astro.props as { all: Comment[]; parent: number; depth: number; url: string; open?: boolean };
 const time = (d: string) => { const h = Number(d.slice(11, 13)); return `${h % 12 || 12}:${d.slice(14, 16)} ${h < 12 ? "am" : "pm"}`; };
 const items = all.filter((c) => (depth === 1 ? c.parent === 0 || !all.some((x) => x.id === c.parent) : c.parent === parent));
 ---
@@ -13,7 +13,8 @@ const items = all.filter((c) => (depth === 1 ? c.parent === 0 || !all.some((x) =
         <div class="comment-metadata"><a href={`${url}#comment-${c.id}`}><time datetime={c.date}>{longDate(c.date)} at {time(c.date)}</time></a></div>
       </footer>
       <div class="comment-content" set:html={c.html} />
+      {open && <div class="reply"><a rel="nofollow" class="comment-reply-link" href="#respond" data-parent={c.id} data-author={c.author || "Anonymous"}>Reply</a></div>}
     </article>
-    {all.some((x) => x.parent === c.id) && <ul class="children"><Astro.self all={all} parent={c.id} depth={depth + 1} url={url} /></ul>}
+    {all.some((x) => x.parent === c.id) && <ul class="children"><Astro.self all={all} parent={c.id} depth={depth + 1} url={url} open={open} /></ul>}
   </li>
 ))}

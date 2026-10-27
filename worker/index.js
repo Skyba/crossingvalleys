@@ -1,9 +1,11 @@
-// crossingvalleys.com Worker. Runs before the static assets for every request: keeps the old WordPress URLs working
+// crossingvalleys.com Worker. Runs before the static assets for every request: serves the comments API and
+// its admin page (comments.js), keeps the old WordPress URLs working
 // (/feed/, ?p=<id>, /wp-content/uploads/..., attachment pages and renamed pages, all as 301s), redirects www and http, and in the
 // staging environment (env.STAGING, cv.basilev.com, unlisted) marks every response noindex.
 import ids from "./ids.json";
 import uploads from "./uploads.json";
 import attachments from "./attachments.json";
+import * as comments from "./comments.js";
 
 const UNLISTED = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai",
@@ -26,6 +28,8 @@ function redirect(url, path) {
 
 async function route(request, env, url) {
   const path = url.pathname;
+  if (path === "/api/comments") return request.method === "POST" ? comments.create(request, env) : comments.list(env, url);
+  if (path === "/admin" || path.startsWith("/admin/")) return comments.admin(request, env, url);
   const id = url.searchParams.get("p") || url.searchParams.get("page_id") || url.searchParams.get("portfolio");
   if (path === "/" && id && ids[id]) return redirect(url, ids[id]);
   if (path === "/" && url.searchParams.has("s")) return Response.redirect(`https://duckduckgo.com/?sites=crossingvalleys.com&q=${encodeURIComponent(url.searchParams.get("s"))}`, 302);

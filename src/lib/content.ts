@@ -14,7 +14,7 @@ export type Post = {
   featured?: string; listing: "landscape" | "portrait" | "slider" | "video" | "text"; listingVideo?: string; excerpt: string;
   body: string; comments: Comment[]; url: string; folder: string; draft?: boolean;
 };
-export type Page = { id: number; title: string; path: string; template: string; sidebar: boolean; body: string; comments: Comment[]; folder: string; date: string; modified: string };
+export type Page = { id: number; title: string; path: string; template: string; sidebar: boolean; commentsOpen?: boolean; body: string; comments: Comment[]; folder: string; date: string; modified: string };
 export type Gallery = { id: number; title: string; order: number; layout?: "collage"; types: { slug: string; name: string }[]; featured: string; images: string[]; body: string; slug: string; url: string; folder: string };
 
 function read(dir: string) {

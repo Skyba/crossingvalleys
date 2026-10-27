@@ -73,3 +73,12 @@ p .cv-youtube { margin: 0 auto; max-width: 560px; }
 
 /* Lightbox: Magnific sets the image's max-height from the window in JS; here CSS does it. */
 img.mfp-img { width: auto; max-width: 100%; max-height: calc(100vh - 80px); padding: 40px 0; margin: 0 auto; display: block; }
+
+/* Footer: only the Follow Me widget since 2026-10-26 (the month list moved out; it stays in the blog sidebar). */
+.cv-footer-row { display: flex; justify-content: center; }
+.cv-footer-row::before, .cv-footer-row::after { display: none; }
+
+/* Comment form: the spam trap is off screen (bots fill it, people never see it); the status line under the button. */
+.cv-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.cv-comment-status:empty { display: none; }
+.cv-comment-status { margin-top: 10px; font-weight: 600; }

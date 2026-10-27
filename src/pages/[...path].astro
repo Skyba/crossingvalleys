@@ -75,7 +75,7 @@ const text = pg ? pg.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() :
         <div class:list={["main", pg!.sidebar ? "col-lg-9 col-md-8 kt-sidebar kt-sidebar-right" : "col-md-12 kt-nosidebar clearfix"]} id="ktmain" role="main">
           <div class="entry-content" set:html={pg!.body} />
           {isInstagram && <div class="entry-content"><Instagram items={insta.page} cols={4} /></div>}
-          <Comments comments={pg!.comments} url={pg!.path} />
+          <Comments comments={pg!.comments} url={pg!.path} open={!!pg!.commentsOpen} />
         </div>
         {pg!.sidebar && <Sidebar instagramOnly />}
       </div>

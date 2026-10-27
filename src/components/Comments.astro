@@ -1,12 +1,30 @@
 ---
-// Comments as they stood when the WordPress site was retired: read-only, no reply form.
+// Comments from the WordPress years (static, from comments.json) followed by the ones written here since, which
+// theme.js loads from /api/comments and appends; with open, the theme's reply form. New comments publish at once.
 import type { Comment } from "../lib/content";
 import CommentList from "./CommentList.astro";
-const { comments, url } = Astro.props as { comments: Comment[]; url: string };
+const { comments, url, open = false } = Astro.props as { comments: Comment[]; url: string; open?: boolean };
+const n = comments.length;
 ---
-{comments.length > 0 && (
-  <div id="comments" class="comments-area"><div class="have-comments-area">
-    <h4 class="comments-title kt-title"><span>{comments.length} {comments.length === 1 ? "Response" : "Responses"}</span></h4>
-    <ul class="comment-list"><CommentList all={comments} parent={0} depth={1} url={url} /></ul>
-  </div></div>
+{(n > 0 || open) && (
+  <div id="comments" class="comments-area" data-page={url} data-count={n} data-open={open ? "1" : undefined}>
+    <div class="have-comments-area" hidden={n === 0}>
+      <h4 class="comments-title kt-title"><span>{n} {n === 1 ? "Response" : "Responses"}</span></h4>
+      <ul class="comment-list"><CommentList all={comments} parent={0} depth={1} url={url} open={open} /></ul>
+    </div>
+    {open && (
+      <div id="respond" class="comment-respond">
+        <h4 id="reply-title" class="comment-reply-title kt-title"><span>Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="#respond" hidden>Cancel reply</a></small></span></h4>
+        <form id="commentform" class="comment-form">
+          <p class="comment-notes">Your comment appears right away. No email needed.</p>
+          <p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="body" cols="45" rows="8" maxlength="5000" required></textarea></p>
+          <p class="comment-form-author"><label for="author">Name</label> <input id="author" name="author" type="text" size="30" maxlength="80" required autocomplete="name"></p>
+          <p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="url" size="30" maxlength="200" autocomplete="url"></p>
+          <p class="cv-trap" aria-hidden="true"><label for="website">Leave this empty</label> <input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></p>
+          <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="Post Comment"> <input type="hidden" name="parent" id="comment_parent" value=""></p>
+          <p class="cv-comment-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    )}
+  </div>
 )}

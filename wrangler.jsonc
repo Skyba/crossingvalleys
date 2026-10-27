@@ -9,6 +9,8 @@
   "workers_dev": false,
   "preview_urls": false,
   "main": "./worker/index.js",
+  // Comments written on the site (worker/comments.js); staging and production share this one database.
+  "d1_databases": [{ "binding": "DB", "database_name": "crossingvalleys", "database_id": "6a8e185b-854b-41d7-b610-ab198a0b1111", "migrations_dir": "migrations" }],
   "assets": {
     "binding": "ASSETS",
     "run_worker_first": true,
@@ -25,6 +27,8 @@
       "preview_urls": false,
       "vars": { "STAGING": "1" },
       "routes": [{ "pattern": "cv.basilev.com", "custom_domain": true }],
+    "d1_databases": [{ "binding": "DB", "database_name": "crossingvalleys", "database_id": "6a8e185b-854b-41d7-b610-ab198a0b1111", "migrations_dir": "migrations" }],
+
       "assets": {
         "binding": "ASSETS",
         "run_worker_first": true,

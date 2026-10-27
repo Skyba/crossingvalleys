@@ -224,3 +224,111 @@ document.addEventListener("click", (e) => {
   f.referrerPolicy = "strict-origin-when-cross-origin";
   box.replaceChildren(f);
 });
+
+// ---- comments written on the site: load them from /api/comments, post new ones, reply to any comment ----
+const area = document.getElementById("comments");
+if (area?.dataset.open) {
+  const page = area.dataset.page;
+  const list = area.querySelector(".comment-list");
+  const form = document.getElementById("commentform");
+  const status = form.querySelector(".cv-comment-status");
+  const parentInput = document.getElementById("comment_parent");
+  const cancel = document.getElementById("cancel-comment-reply-link");
+  const shownAt = Date.now();
+  let count = Number(area.dataset.count);
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const when = (iso) => {
+    const d = new Date(iso), h = d.getHours();
+    return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${h % 12 || 12}:${String(d.getMinutes()).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`;
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const setCount = () => {
+    area.querySelector(".have-comments-area").hidden = count === 0;
+    area.querySelector(".comments-title span").textContent = `${count} ${count === 1 ? "Response" : "Responses"}`;
+  };
+  // Same markup as src/components/CommentList.astro; text goes in through textContent only.
+  function add(c) {
+    const id = `n${c.id}`;
+    if (document.getElementById(`comment-${id}`)) return;
+    const parentLi = c.parent && document.getElementById(`comment-${c.parent}`);
+    const depth = parentLi ? Number((parentLi.className.match(/depth-(\d+)/) || [0, 1])[1]) + 1 : 1;
+    const li = el("li", `comment depth-${depth}`);
+    li.id = `comment-${id}`;
+    const art = el("article", "comment-body");
+    const meta = el("footer", "comment-meta");
+    const who = el("div", "comment-author vcard");
+    const img = Object.assign(el("img", "avatar avatar-60 photo"), { src: "/avatars/default.jpg", alt: "", width: 60, height: 60 });
+    const name = el("b", "fn");
+    if (c.url) name.append(Object.assign(el("a", "url", c.author), { href: c.url, rel: "external nofollow ugc" }));
+    else name.textContent = c.author;
+    who.append(img, " ", name, " ", el("span", "says", "says:"));
+    const md = el("div", "comment-metadata");
+    const link = Object.assign(el("a"), { href: `#comment-${id}` });
+    link.append(Object.assign(el("time", null, when(c.created)), { dateTime: c.created }));
+    md.append(link);
+    meta.append(who, md);
+    const content = el("div", "comment-content");
+    for (const para of c.body.split(/\n{2,}/)) {
+      const p = el("p");
+      para.split("\n").forEach((line, i) => { if (i) p.append(el("br")); p.append(line); });
+      content.append(p);
+    }
+    const reply = el("div", "reply");
+    reply.append(Object.assign(el("a", "comment-reply-link", "Reply"), { href: "#respond", rel: "nofollow" }));
+    reply.firstChild.dataset.parent = id;
+    reply.firstChild.dataset.author = c.author;
+    art.append(meta, content, reply);
+    li.append(art);
+    if (parentLi) {
+      let kids = parentLi.querySelector(":scope > ul.children");
+      if (!kids) { kids = el("ul", "children"); parentLi.append(kids); }
+      kids.append(li);
+    } else list.append(li);
+    count++;
+    setCount();
+  }
+  fetch(`/api/comments?page=${encodeURIComponent(page)}`).then((r) => (r.ok ? r.json() : [])).then((rows) => rows.forEach(add)).catch(() => {});
+
+  const title = document.querySelector("#reply-title > span");
+  const baseTitle = title.firstChild.textContent;
+  const replyTo = (id, author) => {
+    parentInput.value = id || "";
+    title.firstChild.textContent = id ? `Reply to ${author} ` : baseTitle;
+    cancel.hidden = !id;
+  };
+  area.addEventListener("click", (e) => {
+    const a = e.target.closest(".comment-reply-link");
+    if (!a) return;
+    e.preventDefault();
+    replyTo(a.dataset.parent, a.dataset.author);
+    document.getElementById("respond").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    document.getElementById("comment").focus({ preventScroll: true });
+  });
+  cancel.addEventListener("click", (e) => { e.preventDefault(); replyTo(""); });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const button = form.querySelector("#submit");
+    button.disabled = true;
+    status.textContent = "Posting…";
+    try {
+      const r = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ page, parent: f.get("parent"), author: f.get("author"), url: f.get("url"), body: f.get("body"), website: f.get("website"), t: shownAt }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || "The comment could not be posted. Please try again.");
+      add(data);
+      form.querySelector("#comment").value = "";
+      replyTo("");
+      status.textContent = "Thanks, your comment is posted.";
+      document.getElementById(`comment-n${data.id}`)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    } catch (err) {
+      status.textContent = err.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}

@@ -293,6 +293,7 @@ async function importPages() {
       id: p.id, title: text(p.title.rendered), path, date: p.date, modified: p.modified,
       template: (p.template || "default").replace(/^template-|\.php$/g, ""),
       sidebar: !!doc.querySelector(".main.kt-sidebar"),
+      ...(p.comment_status === "open" && p.slug !== "blog" ? { commentsOpen: true } : {}),
     };
     let b = await body(p.content.rendered, dir, path);
     if (p.slug === "instagram") b = ""; // the feed is rendered from data/instagram.json
@@ -380,7 +381,7 @@ async function importSite() {
   const avatarSrc = join(BK, "uploads/sb-instagram-feed-images/basileslife.jpg");
   if (!existsSync(join(insta, "basileslife.jpg"))) await sharp(avatarSrc).resize(100, 100).jpeg({ quality: 80 }).toFile(join(insta, "basileslife.jpg"));
   mkdirSync(join(ROOT, "src/data"), { recursive: true });
-  writeFileSync(join(ROOT, "src/data/instagram.json"), JSON.stringify({ account: "basileslife", sidebar, page }, null, 1) + "\n");
+  writeFileSync(join(ROOT, "src/data/instagram.json"), JSON.stringify({ account: "basilevox", sidebar, page }, null, 1) + "\n");
 }
 
 await importSite();
