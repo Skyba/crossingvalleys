@@ -4,12 +4,17 @@ import SearchForm from "./SearchForm.astro";
 import Instagram from "./Instagram.astro";
 import Social from "./Social.astro";
 import insta from "../data/instagram.json";
+// Pages had their own sidebar in WordPress holding only the Instagram widget.
+const { instagramOnly = false } = Astro.props;
 const recent = posts().slice(0, 5);
 const thumbs = posts().slice(0, 4);
 const sq = (p: (typeof thumbs)[number]) => p.featured && p.url + (p.featured.endsWith(".gif") ? p.featured : variant(p.featured, "sq"));
 ---
 <aside id="ktsidebar" class="col-lg-3 col-md-4 kt-sidebar-container kad-sidebar">
   <div class="sidebar">
+    {instagramOnly ? (
+      <section class="widget-1 widget-first widget widget_text"><div class="widget-inner"><h4 class="widget-title"><span>Instagram</span></h4><div class="textwidget"><Instagram items={insta.sidebar} cols={2} /></div></div></section>
+    ) : (<>
     <section class="widget-1 widget-first widget widget_search"><div class="widget-inner"><SearchForm /></div></section>
     <section class="widget-2 widget widget_text"><div class="widget-inner"><h4 class="widget-title"><span>Instagram</span></h4><div class="textwidget"><Instagram items={insta.sidebar} cols={2} /></div></div></section>
     <section class="widget-3 widget widget_recent_entries"><div class="widget-inner"><h4 class="widget-title"><span>Recent Posts</span></h4>
@@ -33,5 +38,6 @@ const sq = (p: (typeof thumbs)[number]) => p.featured && p.url + (p.featured.end
       <div class="rpw_readmore_container"><a href="/" class="button posts_widget_readmore"><span>Read More</span></a></div>
     </div></section>
     <section class="widget-7 widget widget_kadence_social"><div class="widget-inner"><h4 class="widget-title"><span>Follow Me</span></h4><Social placement="top" /></div></section>
+    </>)}
   </div>
 </aside>

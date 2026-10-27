@@ -1,8 +1,9 @@
 // crossingvalleys.com Worker. Runs before the static assets for every request: keeps the old WordPress URLs working
-// (/feed/, ?p=<id>, /wp-content/uploads/... and renamed pages, all as 301s), redirects www and http, and in the
+// (/feed/, ?p=<id>, /wp-content/uploads/..., attachment pages and renamed pages, all as 301s), redirects www and http, and in the
 // staging environment (env.STAGING, cv.basilev.com, unlisted) marks every response noindex.
 import ids from "./ids.json";
 import uploads from "./uploads.json";
+import attachments from "./attachments.json";
 
 const UNLISTED = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai",
@@ -16,6 +17,7 @@ const MOVED = {
   "/travel-itinerary/": "/trip/travel-itinerary/",
   "/questions-answers/": "/trip/questions-answers/",
   "/home/": "/",
+  "/category/uncategorized/": "/blog/",
 };
 
 function redirect(url, path) {
@@ -40,6 +42,7 @@ async function route(request, env, url) {
   }
   const slash = path.endsWith("/") ? path : path + "/";
   if (MOVED[slash]) return redirect(url, MOVED[slash]);
+  if (attachments[slash]) return redirect(url, attachments[slash]);
   return env.ASSETS.fetch(request);
 }
 

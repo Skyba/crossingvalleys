@@ -388,6 +388,15 @@ await importPosts();
 await importPages();
 await importPortfolio();
 writeFileSync(MISSES, JSON.stringify([...misses].sort(), null, 1) + "\n");
+// WordPress gave every upload its own "attachment page": send each to the page it was attached to, else to the image.
+const attachments = {};
+for (const m of media) {
+  const from = new URL(m.link).pathname;
+  const rel = (m.source_url.match(/\/wp-content\/uploads\/(.+)$/) || [])[1];
+  const to = ids[m.post] || (rel && uploadMap[decodeURIComponent(rel)]);
+  if (to && from !== to) attachments[from] = to;
+}
+writeFileSync(join(ROOT, "worker/attachments.json"), JSON.stringify(attachments) + "\n");
 writeFileSync(join(ROOT, "worker/ids.json"), JSON.stringify(ids) + "\n");
 writeFileSync(join(ROOT, "worker/uploads.json"), JSON.stringify(Object.fromEntries(Object.entries(uploadMap).sort()), null, 0) + "\n");
 if (missing.size) console.log("missing from the backup:", [...missing]);

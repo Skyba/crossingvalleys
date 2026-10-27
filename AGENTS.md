@@ -10,7 +10,7 @@ crossingvalleys.com, "Basile's Travel Blog": France to China by bicycle, April 2
 - Images: `<name>` is at most 2000 px, metadata stripped; `<name>-m` at most 1040 px wide (lists, headers, srcset); `<name>-sq` a 600x600 centre crop (gallery grids, thumbnails). Gallery photos have no `-m`.
 - `src/`: Astro templates reproducing the Ascend markup; `public/theme/ascend.css` is the theme's own stylesheet (GPL, Ascend 1.2.0 from wordpress.org), `src/styles/wp-custom.css` the customizer CSS WordPress inlined, `src/styles/site.css` the rest (hero, Instagram widget, sliders, YouTube). `src/scripts/theme.js` replaces the theme's jQuery: sticky header, typed title, menus, lightbox, sliders, click-to-load YouTube.
 - `src/data/instagram.json` + `public/instagram/`: a frozen copy of the Instagram widget (it no longer updates).
-- `worker/index.js`: runs before the assets for every request. `/feed/` (RSS, built as `/feed.xml`), old `?p=<id>` and `?page_id=<id>` links (`worker/ids.json`), old `/wp-content/uploads/...` image URLs including WordPress size variants (`worker/uploads.json`), renamed gallery slugs, per-post and comment feeds → `/feed/`, `?s=` search → DuckDuckGo. All 301. Staging adds noindex headers and a Disallow robots.txt.
+- `worker/index.js`: runs before the assets for every request. `/feed/` (RSS, built as `/feed.xml`), old `?p=<id>` and `?page_id=<id>` links (`worker/ids.json`), old `/wp-content/uploads/...` image URLs including WordPress size variants (`worker/uploads.json`), the attachment page WordPress gave each upload (`worker/attachments.json`, to the page it belonged to), renamed gallery slugs, per-post and comment feeds → `/feed/`, `?s=` search → DuckDuckGo. All 301. Staging adds noindex headers and a Disallow robots.txt.
 
 ## Commands
 
