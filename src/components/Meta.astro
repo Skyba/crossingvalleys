@@ -1,0 +1,8 @@
+---
+import { longDate } from "../lib/content";
+const { date } = Astro.props;
+---
+<div class="post-top-meta kt_color_gray">
+  <span class="postdate kt-post-date updated">{longDate(date)}</span>{" "}
+  <span class="postauthortop kt-post-author author vcard"><span class="kt-by-author">by</span> <span><a href="/author/basile/" class="fn kt_color_gray" rel="author">Basile</a></span></span>
+</div>

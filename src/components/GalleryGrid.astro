@@ -1,0 +1,29 @@
+---
+// The theme's portfolio grid: a square card per country gallery, title and region below (poststyle) or on hover (compact).
+import type { Gallery } from "../lib/content";
+import { variant } from "../lib/content";
+const { items, compact = false } = Astro.props as { items: Gallery[]; compact?: boolean };
+---
+<div class:list={["kad-portfolio-wrapper-outer", compact ? "p-outer-pgrid" : "p-outer-poststyle"]}>
+  <div id="portfolio_template_wrapper" class:list={["entry-content portfolio-grid-light-gallery", compact ? "rowtight" : "row"]}>
+    {items.map((g) => (
+      <div class:list={[compact ? "col-xxl-2 col-xl-25 col-md-3 col-sm-4 col-xs-6 col-ss-12" : "col-xxl-3 col-xl-4 col-md-4 col-sm-4 col-xs-6 col-ss-12", "p_item"]}>
+        <div class="portfolio_item grid_item">
+          <div class="portfolio-loop-image-container">
+            <div class="img-hoverclass kt-intrinsic portfolio-loop-image" style="padding-bottom:100%;"><div class="portfolio-img-hover-inner"><img src={g.url + variant(g.featured, "sq")} width="600" height="600" alt="" loading="lazy"></div></div>
+            <div class="portfolio-hover-item">
+              <div class="portfolio-overlay-color"></div><div class="portfolio-overlay-border"></div>
+              <a href={g.url} class="portfolio-hover-item-link" aria-label={g.title}></a>
+              <div class="portfolio-hover-item-inner">
+                {compact
+                  ? <a href={g.url} class="portfolio-inner-link"><h5 class="portfolio-loop-title">{g.title}</h5><div class="portfolio-loop-types">{g.types.map((t) => t.name).join(" | ")}</div></a>
+                  : <a href={g.url + g.featured} class="kad_portfolio_lightbox_link portfolio_lightbox" aria-label={g.title} data-rel="lightbox"><i class="kt-icon-search"></i></a>}
+              </div>
+            </div>
+          </div>
+          {!compact && <div class="portfolio-poststyle-content postclass"><a href={g.url} class="portfolio-poststyle-link"><h5 class="portfolio-loop-title">{g.title}</h5><div class="portfolio-loop-types">{g.types.map((t) => t.name).join(" | ")}</div></a></div>}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>

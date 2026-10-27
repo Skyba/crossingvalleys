@@ -1,0 +1,21 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import GalleryGrid from "../../components/GalleryGrid.astro";
+import { galleries } from "../../lib/content";
+
+export function getStaticPaths() {
+  const types = new Map<string, string>();
+  for (const g of galleries()) for (const t of g.types) types.set(t.slug, t.name);
+  return [...types].map(([type, name]) => ({ params: { type }, props: { name, items: galleries().filter((g) => g.types.some((t) => t.slug === type)) } }));
+}
+const { name, items } = Astro.props;
+---
+<Base title={name} bodyClass="archive tax-portfolio-type none-trans-header" current="/photography/">
+  <PageHeader title={name} crumbs={[{ label: "Home", href: "/" }, { label: "Photography", href: "/photography/" }, { label: name }]} />
+  <div id="content" class="container clearfix">
+    <div class="row">
+      <div class="main col-md-12 kt-nosidebar clearfix" role="main"><GalleryGrid items={items} compact /></div>
+    </div>
+  </div>
+</Base>

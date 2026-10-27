@@ -1,0 +1,84 @@
+---
+// Every list page (blog, categories, tags, author, month and year archives, all paginated like WordPress at 10 a page)
+// and every plain content page (Trip, Q&A, Gear, About, ...), at their WordPress URLs.
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
+import LoopItem from "../components/LoopItem.astro";
+import Pagination from "../components/Pagination.astro";
+import Sidebar from "../components/Sidebar.astro";
+import Comments from "../components/Comments.astro";
+import Instagram from "../components/Instagram.astro";
+import insta from "../data/instagram.json";
+import { posts, pages, paginate, CATEGORIES, TAGS, monthName } from "../lib/content";
+import type { Post, Page } from "../lib/content";
+
+type List = { kind: "list"; title: string; docTitle: string; base: string; crumbs?: { label: string; href?: string }[]; items: Post[]; page: number; last: number; current?: string };
+type Content = { kind: "page"; page: Page };
+
+export function getStaticPaths() {
+  const all = posts();
+  const out: { params: { path: string | undefined }; props: List | Content }[] = [];
+  const list = (base: string, title: string, items: Post[], crumbs?: List["crumbs"], docTitle = title, current?: string) => {
+    for (const pg of paginate(items, 10)) {
+      const path = (base + (pg.page > 1 ? `page/${pg.page}/` : "")).replace(/^\/|\/$/g, "");
+      out.push({ params: { path }, props: { kind: "list", title, docTitle, base, crumbs, items: pg.items, page: pg.page, last: pg.last, current } });
+    }
+  };
+  list("/blog/", "Blog", all, undefined, "Blog", "/blog/");
+  for (const [slug, name] of Object.entries(CATEGORIES)) {
+    const items = all.filter((p) => p.categories.includes(slug));
+    if (items.length) list(`/category/${slug}/`, name, items, [{ label: "Home", href: "/" }, { label: "Blog", href: "/blog/" }, { label: name }]);
+  }
+  for (const [slug, name] of Object.entries(TAGS)) {
+    const items = all.filter((p) => p.tags.includes(slug));
+    if (items.length) list(`/tag/${slug}/`, `Tag: ${name}`, items, [{ label: "Home", href: "/" }, { label: `Posts tagged "${name}"` }], name);
+  }
+  list("/author/basile/", "Author: Basile", all, [{ label: "Home", href: "/" }, { label: "Articles posted by Basile" }], "Basile");
+  const years = [...new Set(all.map((p) => p.date.slice(0, 4)))];
+  for (const y of years) {
+    list(`/${y}/`, `Year: ${y}`, all.filter((p) => p.date.startsWith(y)), [{ label: "Home", href: "/" }, { label: y }], y);
+    const months = [...new Set(all.filter((p) => p.date.startsWith(y)).map((p) => p.date.slice(5, 7)))];
+    for (const m of months) {
+      const name = `${monthName(Number(m))} ${y}`;
+      list(`/${y}/${m}/`, `Month: ${name}`, all.filter((p) => p.date.startsWith(`${y}-${m}`)), [{ label: "Home", href: "/" }, { label: y, href: `/${y}/` }, { label: monthName(Number(m)) }], name);
+    }
+  }
+  for (const page of pages()) {
+    if (["/", "/blog/", "/photography/"].includes(page.path)) continue;
+    out.push({ params: { path: page.path.replace(/^\/|\/$/g, "") }, props: { kind: "page", page } });
+  }
+  return out;
+}
+const props = Astro.props as List | Content;
+const pg = props.kind === "page" ? props.page : undefined;
+const isInstagram = pg?.path === "/photography/instagram/";
+const text = pg ? pg.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+---
+{props.kind === "list" ? (
+  <Base title={props.page > 1 ? `${props.docTitle} – Page ${props.page}` : props.docTitle} bodyClass="archive blog none-trans-header" current={props.current}>
+    <PageHeader title={props.title} crumbs={props.crumbs} />
+    <div id="content" class="container clearfix">
+      <div class="row">
+        <div class="main col-lg-9 col-md-8 kt-sidebar kt-sidebar-right postlist clearfix" role="main">
+          <div class="kt_archivecontent">{props.items.map((p, i) => <LoopItem post={p} first={i === 0} />)}</div>
+          <Pagination page={props.page} last={props.last} base={props.base} />
+        </div>
+        <Sidebar />
+      </div>
+    </div>
+  </Base>
+) : (
+  <Base title={pg!.title} bodyClass="page page-template-default none-trans-header" current={pg!.path} description={text.slice(0, 155) || undefined}>
+    <PageHeader title={pg!.title} />
+    <div id="content" class="container clearfix">
+      <div class="row single-article">
+        <div class:list={["main", pg!.sidebar ? "col-lg-9 col-md-8 kt-sidebar kt-sidebar-right" : "col-md-12 kt-nosidebar clearfix"]} id="ktmain" role="main">
+          <div class="entry-content" set:html={pg!.body} />
+          {isInstagram && <div class="entry-content"><Instagram items={insta.page} cols={4} /></div>}
+          <Comments comments={pg!.comments} url={pg!.path} />
+        </div>
+        {pg!.sidebar && <Sidebar />}
+      </div>
+    </div>
+  </Base>
+)}

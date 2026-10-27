@@ -1,0 +1,12 @@
+---
+// Comments as they stood when the WordPress site was retired: read-only, no reply form.
+import type { Comment } from "../lib/content";
+import CommentList from "./CommentList.astro";
+const { comments, url } = Astro.props as { comments: Comment[]; url: string };
+---
+{comments.length > 0 && (
+  <div id="comments" class="comments-area"><div class="have-comments-area">
+    <h4 class="comments-title kt-title"><span>{comments.length} {comments.length === 1 ? "Response" : "Responses"}</span></h4>
+    <ul class="comment-list"><CommentList all={comments} parent={0} depth={1} url={url} /></ul>
+  </div></div>
+)}

@@ -1,0 +1,6 @@
+---
+const { crumbs } = Astro.props;
+---
+<div class="kt_bc_nomargin"><div id="kadbreadcrumbs"><div class="kt-breadcrumb-container container">
+  {crumbs.map((c: { label: string; href?: string }, i: number) => <>{i > 0 && <span class="bc-delimiter"> » </span>}{c.href ? <a href={c.href} class:list={{ "kad-bc-home": i === 0 }}>{c.label}</a> : <span class="kad-breadcurrent">{c.label}</span>}</>)}
+</div></div></div>

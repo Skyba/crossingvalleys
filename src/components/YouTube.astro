@@ -1,0 +1,7 @@
+---
+// Click-to-load YouTube: a local thumbnail until the visitor presses play, then a youtube-nocookie iframe (no autoplay before the click).
+const { id, thumb, title = "" } = Astro.props;
+---
+<div class="cv-youtube videofit video-container" data-youtube={id}>
+  <button type="button" class="cv-youtube-play" aria-label={title ? `Play video: ${title}` : "Play video"}><img src={thumb} alt="" loading="lazy"><span class="cv-youtube-icon"></span></button>
+</div>

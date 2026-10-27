@@ -1,0 +1,49 @@
+---
+import Base from "../layouts/Base.astro";
+import LoopItem from "../components/LoopItem.astro";
+import GalleryGrid from "../components/GalleryGrid.astro";
+import { posts, page, galleries } from "../lib/content";
+const home = page("/");
+const latest = posts().slice(0, 6);
+// The eight galleries the WordPress home showed, in its order.
+const featured = ["istanbul", "cycling-in-india-part-1", "biking-pakistan", "biking-iran-part-2", "biking-iran-part-1", "cycling-in-azerbaijan", "yerevan-armenia", "georgia"].map((s) => galleries().find((g) => g.slug === s)!);
+---
+<Base title="" bodyClass="home page trans-header" current="/" description="Cycling from Paris to Hong Kong, 2017–2018: 18,077 km, 24 countries, 492 days. People, culture and travel hazards." image="/assets/bikepacking-iran-frontcover-m.jpg">
+  <div id="pageheader" class="titleclass kt_desktop_slider post-header-area kt_bc_not_active cv-hero">
+    <img class="cv-hero-bg" src="/assets/bikepacking-iran-frontcover-m.jpg" srcset="/assets/bikepacking-iran-frontcover-m.jpg 1040w, /assets/bikepacking-iran-frontcover.jpg 2000w" sizes="100vw" alt="" fetchpriority="high">
+    <div class="header-color-overlay"></div>
+    <div class="container">
+      <div class="page-header" style="text-align:center">
+        <div class="page-header-inner">
+          <h1 class="page_head_title home_head_title entry-title" data-max-size="60" data-min-size="35">
+            <span class="kt_typed_element" data-strings='["From France to China","... on a bicycle"]' data-speed="40" data-start-delay="500" data-back-delay="3000" aria-label="From France to China on a bicycle">From France to China</span>
+          </h1>
+          <p class="subtitle" data-max-size="34" data-min-size="20">People, culture &amp; travel hazards</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="content" class="container homepagecontent">
+    <div class="row">
+      <div class="main col-md-12 kt-nosidebar clearfix" role="main">
+        <div class="entry-content">
+          <div class="entry-content" set:html={home.body} />
+          <div class="home-margin cv-trailer">
+            <div class="clearfix"><h3 class="hometitle"><span>THE TRAILER</span></h3></div>
+            <div class="cv-youtube videofit video-container" data-youtube="95SvVZg4VAw">
+              <button type="button" class="cv-youtube-play" aria-label="Play video: From France to China by bicycle - Trailer"><img src="/assets/youtube-95SvVZg4VAw.jpg" alt="" loading="lazy"><span class="cv-youtube-icon"></span></button>
+            </div>
+          </div>
+          <div class="home_blog home-margin clearfix home-padding">
+            <div class="clearfix"><h3 class="hometitle"><span>LATEST POSTS</span></h3></div>
+            <div class="kt_blog_home postlist"><div class="kt_archivecontent">
+              {latest.map((p, i) => <LoopItem post={p} wide first={i === 0} />)}
+            </div></div>
+            <div class="home_blog_readmore"><a href="/blog/" class="btn btn-primary">MORE POSTS</a></div>
+          </div>
+          <div class="home-portfolio-full home-margin home-padding"><GalleryGrid items={featured} compact /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>

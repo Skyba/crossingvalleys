@@ -1,0 +1,13 @@
+---
+// The theme's fading image slider (slick in WordPress, src/scripts/theme.js here). Each slide opens the lightbox,
+// or the post when href is given.
+import Crop from "./Crop.astro";
+const { base, images, href, w = 1040, h = 400, sizes = {} } = Astro.props;
+---
+<div class="slick-slider kad-light-gallery kt-slickslider kt-slider-same-image-ratio cv-slider" data-slider-speed="7000" data-slider-fade="true" data-slider-auto="true" style={`max-width:${w}px;`}>
+  {images.map((name: string, i: number) => (
+    <div class="kt-slick-slide">
+      <a href={href ?? base + name} data-rel={href ? undefined : "lightbox"} class="kt-slider-image-link"><Crop base={base} name={name} w={w} h={h} size={sizes[name]} eager={i === 0} /></a>
+    </div>
+  ))}
+</div>

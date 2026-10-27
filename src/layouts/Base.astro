@@ -1,0 +1,162 @@
+---
+// The Ascend theme page shell: header (desktop and mobile), footer widgets, mobile slide-out menu.
+// Markup and class names follow the theme so public/theme/ascend.css styles it unchanged.
+import "@fontsource/fredericka-the-great/400.css";
+import "@fontsource/montserrat/400.css";
+import "@fontsource/montserrat/600.css";
+import "@fontsource/source-sans-pro/300.css";
+import "@fontsource/source-sans-pro/400.css";
+import "@fontsource/source-sans-pro/400-italic.css";
+import "@fontsource/source-sans-pro/600.css";
+import "@fontsource/source-sans-pro/700.css";
+import "../styles/wp-custom.css";
+import "../styles/site.css";
+import { archives } from "../lib/content";
+import Social from "../components/Social.astro";
+import SearchForm from "../components/SearchForm.astro";
+
+interface Props { title: string; bodyClass?: string; description?: string; current?: string; canonical?: string; image?: string }
+const { title, bodyClass = "", description, current = "", canonical, image } = Astro.props;
+const SITE = "Basile's Travel Blog";
+const fullTitle = title ? `${title} – ${SITE}` : `${SITE} – People, culture & travel hazards`;
+const menu = [
+  { label: "Home", href: "/" },
+  { label: "Trip", href: "/trip/", children: [
+    { label: "Where is Basile?", href: "/trip/travel-itinerary/" },
+    { label: "Gear", href: "/gear-to-cycle-the-world/" },
+    { label: "Q&A", href: "/trip/questions-answers/" },
+  ] },
+  { label: "Blog", href: "/blog/" },
+  { label: "Photos", href: "/photography/", children: [
+    { label: "Photo Gallery", href: "/photography/" },
+    { label: "Instagram", href: "/photography/instagram/" },
+  ] },
+  { label: "About", href: "/about-me/" },
+];
+const isCurrent = (href: string) => current === href;
+const isAncestor = (item: (typeof menu)[number]) => item.children?.some((c) => c.href === current);
+const canon = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+---
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{fullTitle}</title>
+  {description && <meta name="description" content={description}>}
+  <link rel="canonical" href={canon}>
+  <link rel="alternate" type="application/rss+xml" title={`${SITE} » Feed`} href="/feed/">
+  <link rel="icon" href="/assets/ascend_logo-min-2.png" type="image/png">
+  <meta property="og:site_name" content={SITE}>
+  <meta property="og:title" content={title || SITE}>
+  <meta property="og:url" content={canon}>
+  {description && <meta property="og:description" content={description}>}
+  {image && <meta property="og:image" content={new URL(image, Astro.site).href}>}
+  <link rel="stylesheet" href="/theme/ascend.css">
+</head>
+<body class={`${bodyClass} wp-custom-logo kad-header-position-above kt-showsub-indicator kt-width-large body-style-normal`}>
+  <div id="wrapper" class="container">
+    <header id="kad-header-menu" class="headerclass-outer kt-header-position-above kt-header-layout-standard clearfix" data-sticky="header" data-shrink="1" data-start-height="100" data-shrink-height="70">
+      <div class="outside-top-headerclass">
+        <div class="kad-header-topbar-primary-outer">
+          <div class="outside-headerclass">
+            <div class="sticky-wrapper">
+              <div class="kad-header-menu-outer headerclass">
+                <div class="kad-header-menu-inner container">
+                  <div class="kad-header-flex kad-header-height">
+                    <div class="kad-left-header kt-header-flex-item">
+                      <div id="logo" class="logocase kad-header-height">
+                        <a class="brand logofont" href="/">
+                          <img src="/assets/ascend_logo-min-2.png" width="64" height="64" class="ascend-logo" style="max-height:64px" alt="Basile's Travel Blog">
+                          <img src="/assets/trans_logo-min-2.png" width="64" height="64" class="ascend-trans-logo" style="max-height:64px" alt="Basile's Travel Blog">
+                          <span class="kad-site-title kad-logo-used">Basile's Travel Blog</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="kad-center-header kt-header-flex-item">
+                      <nav class="nav-main clearfix">
+                        <ul id="menu-main-menu" class="sf-menu sf-menu-normal">
+                          {menu.map((item) => (
+                            <li class:list={["menu-item", { "menu-item-has-children sf-dropdown": item.children, "current-menu-item": isCurrent(item.href) && !item.children, "current-menu-ancestor": isAncestor(item) || (item.children && isCurrent(item.href)) }]}>
+                              <a href={item.href}>{item.label}</a>
+                              {item.children && (
+                                <ul class="sub-menu sf-dropdown-menu dropdown">
+                                  {item.children.map((c) => <li class:list={["menu-item", { "current-menu-item": isCurrent(c.href) }]}><a href={c.href}>{c.label}</a></li>)}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </nav>
+                    </div>
+                    <div class="kad-right-header kt-header-flex-item">
+                      <div class="kt-header-extras clearfix">
+                        <ul class="sf-menu sf-menu-normal">
+                          <li class="menu-widget-area-kt">
+                            <div class="widget-1 widget-first kt-above-lg-widget-area widget_kadence_social"><div class="widget-inner"><Social placement="bottom" /></div></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div id="kad-mobile-banner" class="banner mobile-headerclass" data-mobile-header-sticky="1">
+      <div class="container mobile-header-container kad-mobile-header-height">
+        <div class="kad-mobile-menu-flex-item kad-mobile-header-height kt-mobile-header-toggle kad-mobile-menu-left">
+          <button class="mobile-navigation-toggle kt-sldr-pop-modal" aria-label="Menu" aria-controls="kt-mobile-menu" aria-expanded="false">
+            <span class="kt-mnt"><span></span><span></span><span></span></span>
+          </button>
+        </div>
+        <div id="mobile-logo" class="logocase kad-mobile-header-height kad-mobile-logo-center"><a class="brand logofont" href="/"><span class="kad-mobile-site-title">Basile's Travel Blog</span></a></div>
+        <div id="mobile-logo-placeholder" class="kad-mobile-header-height"></div>
+      </div>
+    </div>
+    <div id="inner-wrap" class="wrap clearfix contentclass hfeed" role="document">
+      <slot />
+    </div>
+    <footer id="containerfooter" class="footerclass">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3 col-sm-6 footercol1"></div>
+          <div class="col-md-3 col-sm-6 footercol2">
+            <div class="widget-1 widget-first footer-widget widget"><aside class="widget_kadence_social"><div class="footer-widget-title"><span>Follow Me</span></div><Social placement="top" /></aside></div>
+          </div>
+          <div class="col-md-3 col-sm-6 footercol3">
+            <div class="widget-1 widget-first footer-widget widget"><aside class="widget_archive"><div class="footer-widget-title"><span>Archives</span></div>
+              <ul>{archives().map((a) => <li><a href={`/${a.year}/${a.month}/`}>{a.label}</a></li>)}</ul>
+            </aside></div>
+          </div>
+        </div>
+      </div>
+      <div class="footerbase">
+        <div class="container">
+          <div class="footercredits clearfix"><p>&copy; {new Date().getFullYear()} Basile Verhulst</p></div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <div class="mag-pop-sldr mfp-hide mfp-with-anim kt-mobile-menu" id="kt-mobile-menu" tabindex="-1" role="dialog" aria-label="Menu">
+    <div class="pop-modal-content">
+      <div class="pop-modal-body">
+        <SearchForm />
+        <ul class="kad-mobile-nav">
+          {menu.map((item) => (
+            <li class:list={["menu-item", { "menu-item-has-children sf-dropdown sf-dropdown-toggle": item.children, "current-menu-item": isCurrent(item.href) }]}>
+              <a href={item.href}>{item.label}</a>
+              {item.children && <span class="kad-submenu-accordion collapse-next" role="button" tabindex="0" aria-label={`${item.label} submenu`}><i class="kt-icon-chevron-down"></i><i class="kt-icon-chevron-up"></i></span>}
+              {item.children && <ul class="sub-menu sf-dropdown-menu collapse">{item.children.map((c) => <li class="menu-item"><a href={c.href}>{c.label}</a></li>)}</ul>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script src="../scripts/theme.js"></script>
+</body>
+</html>

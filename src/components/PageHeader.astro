@@ -1,0 +1,10 @@
+---
+const { title, crumbs } = Astro.props;
+---
+<div id="pageheader" class:list={["titleclass post-header-area", crumbs ? "kt_bc_active" : "kt_bc_not_active"]}>
+  <div class="header-color-overlay"></div>
+  <div class="container"><div class="page-header"><div class="page-header-inner">
+    <h1 class="page_head_title entry-title" data-max-size="33" data-min-size="30">{title}</h1>
+  </div></div></div>
+  {crumbs && <div id="kadbreadcrumbs"><div class="kt-breadcrumb-container container">{crumbs.map((c: { label: string; href?: string }, i: number) => <>{i > 0 && <span class="bc-delimiter"> » </span>}{c.href ? <a href={c.href} class:list={{ "kad-bc-home": i === 0 }}>{c.label}</a> : <span class="kad-breadcurrent">{c.label}</span>}</>)}</div></div>}
+</div>

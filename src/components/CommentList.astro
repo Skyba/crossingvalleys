@@ -1,0 +1,19 @@
+---
+import type { Comment } from "../lib/content";
+import { longDate } from "../lib/content";
+const { all, parent, depth, url } = Astro.props as { all: Comment[]; parent: number; depth: number; url: string };
+const time = (d: string) => { const h = Number(d.slice(11, 13)); return `${h % 12 || 12}:${d.slice(14, 16)} ${h < 12 ? "am" : "pm"}`; };
+const items = all.filter((c) => (depth === 1 ? c.parent === 0 || !all.some((x) => x.id === c.parent) : c.parent === parent));
+---
+{items.map((c, i) => (
+  <li id={`comment-${c.id}`} class:list={["comment", `depth-${depth}`, i % 2 ? "odd alt" : "even"]}>
+    <article id={`div-comment-${c.id}`} class="comment-body">
+      <footer class="comment-meta">
+        <div class="comment-author vcard"><img alt="" src={`/avatars/${c.avatar}.jpg`} class="avatar avatar-60 photo" height="60" width="60" loading="lazy"> {c.url ? <b class="fn"><a href={c.url} rel="external nofollow ugc" class="url">{c.author || "Anonymous"}</a></b> : <b class="fn">{c.author || "Anonymous"}</b>} <span class="says">says:</span></div>
+        <div class="comment-metadata"><a href={`${url}#comment-${c.id}`}><time datetime={c.date}>{longDate(c.date)} at {time(c.date)}</time></a></div>
+      </footer>
+      <div class="comment-content" set:html={c.html} />
+    </article>
+    {all.some((x) => x.parent === c.id) && <ul class="children"><Astro.self all={all} parent={c.id} depth={depth + 1} url={url} /></ul>}
+  </li>
+))}

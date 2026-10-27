@@ -1,0 +1,52 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import { galleries, variant } from "../../lib/content";
+import type { Gallery } from "../../lib/content";
+
+export function getStaticPaths() {
+  return galleries().map((g) => ({ params: { slug: g.slug }, props: { g } }));
+}
+const { g } = Astro.props as { g: Gallery };
+---
+<Base title={g.title} bodyClass="portfolio-template-default single single-portfolio none-trans-header" current="/photography/" description={`Photos from ${g.title}, cycling from France to China (2017–2018).`} image={g.url + variant(g.featured, "sq")}>
+  <PageHeader title={g.title} />
+  <div id="content" class="container clearfix">
+    <div class="row single-portfolio">
+      <div class="main col-md-12 kt-nosidebar clearfix" id="ktmain" role="main">
+        <article class="postclass portfolio type-portfolio hentry">
+          <div class="row">
+            <div class="col-md-12 portfolio-project">
+              {g.layout === "collage" ? (
+                <section class="postfeat"><div class="kad_post_grid kad-light-gallery"><div class="kad_postgrid_wrap kt-4-collage clearfix">
+                  {[[0], [1, 2], [3]].map((group, gi) => {
+                    const item = (n: number) => g.images[n] && (
+                      <div class={`kpgi kad_post_grid_item-${n + 1}`}><div class="kpgi-inner">
+                        <a href={g.url + g.images[n]} class="kt-intrinsic" style={`padding-bottom:${n === 0 ? 155 : n === 3 ? 50 : 100}%;`} data-rel="lightbox"><img src={g.url + g.images[n]} alt="" style="object-fit:cover;width:100%;height:100%"></a>
+                      </div></div>
+                    );
+                    return gi === 0 ? item(0) : <div class="side_post_gal">{group.map(item)}</div>;
+                  })}
+                </div></div></section>
+              ) : (
+              <section class="postfeat"><div class="kad-wp-gallery kt-gallery-column-3 kad-light-gallery clearfix row-margin-small">
+                {g.images.map((name, i) => (
+                  <div class="col-xxl-25 col-xl-3 col-lg-4 col-md-4 col-sm-4 col-xs-6 col-ss-12 g_item"><div class="grid_item gallery_item">
+                    <a href={g.url + name} data-rel="lightbox" class="gallery-link"><div class="kt-intrinsic" style="padding-bottom:100%;"><img src={g.url + variant(name, "sq")} width="600" height="600" alt="" class="kt-gallery-img" loading={i < 6 ? "eager" : "lazy"} decoding="async"></div></a>
+                  </div></div>
+                ))}
+              </div></section>
+              )}
+            </div>
+            <div class="col-md-12 portfolio-content">
+              <div class="portfolio-content-inner">
+                <header><h1 class="entry-title">{g.title}</h1></header>
+                <div class="entry-content" set:html={g.body} />
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</Base>

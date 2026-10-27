@@ -1,0 +1,11 @@
+---
+// A WordPress hard crop (e.g. 1040x400) reproduced in CSS: the image keeps the crop's box and is cover-fitted into it.
+// Like WordPress, an original smaller than the crop is shown as it is.
+import { variant } from "../lib/content";
+interface Props { base: string; name: string; w: number; h: number; class?: string; alt?: string; eager?: boolean; size?: { w: number; h: number } }
+const { base, name, w, h, alt = "", eager = false, size } = Astro.props;
+const small = size && (size.w < w || size.h < h);
+const cw = small ? size!.w : w, ch = small ? size!.h : h;
+const src = base + (name.endsWith(".gif") ? name : variant(name, "m"));
+---
+<img src={src} srcset={name.endsWith(".gif") ? undefined : `${src} 1040w, ${base + name} 2000w`} sizes={`(max-width: ${cw}px) 100vw, ${cw}px`} width={cw} height={ch} style={`aspect-ratio:${cw}/${ch};object-fit:cover`} class={Astro.props.class} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async">

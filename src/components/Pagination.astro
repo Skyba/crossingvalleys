@@ -1,0 +1,11 @@
+---
+const { page, last, base } = Astro.props;
+const url = (n: number) => (n === 1 ? base : `${base}page/${n}/`);
+---
+{last > 1 && (
+  <div class="wp-pagenavi"><nav class="navigation pagination" aria-label="Posts navigation"><div class="nav-links">
+    {page > 1 && <a class="prev page-numbers" href={url(page - 1)} aria-label="Previous page"><i class="kt-icon-chevron-left"></i></a>}
+    {Array.from({ length: last }, (_, i) => i + 1).map((n) => n === page ? <span aria-current="page" class="page-numbers current">{n}</span> : <a class="page-numbers" href={url(n)}>{n}</a>)}
+    {page < last && <a class="next page-numbers" href={url(page + 1)} aria-label="Next page"><i class="kt-icon-chevron-right"></i></a>}
+  </div></nav></div>
+)}

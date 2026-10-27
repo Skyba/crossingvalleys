@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import GalleryGrid from "../../components/GalleryGrid.astro";
+import Pagination from "../../components/Pagination.astro";
+import Comments from "../../components/Comments.astro";
+import { galleries, paginate, page } from "../../lib/content";
+
+export function getStaticPaths() {
+  return paginate(galleries(), 9).map((pg) => ({ params: { page: pg.page > 1 ? `page/${pg.page}` : undefined }, props: pg }));
+}
+const { items, page: n, last } = Astro.props;
+const p = page("/photography/");
+---
+<Base title={n > 1 ? `Photography – Page ${n}` : "Photography"} bodyClass="page page-template-template-portfolio-grid none-trans-header" current="/photography/">
+  <PageHeader title="Photography" />
+  <div id="content" class="container clearfix">
+    <div class="row">
+      <div class="main col-md-12 kt-nosidebar clearfix" role="main">
+        <GalleryGrid items={items} />
+        <Pagination page={n} last={last} base="/photography/" />
+        <Comments comments={p.comments} url="/photography/" />
+      </div>
+    </div>
+  </div>
+</Base>

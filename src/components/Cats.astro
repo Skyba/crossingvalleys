@@ -1,0 +1,5 @@
+---
+import { CATEGORIES } from "../lib/content";
+const { cats } = Astro.props;
+---
+<div class="kt_post_category kt-post-cats">{cats.map((c: string, i: number) => <>{i > 0 && " | "}<a href={`/category/${c}/`} rel="category tag">{CATEGORIES[c]}</a></>)}</div>

@@ -1,0 +1,80 @@
+---
+import Base from "../../../../layouts/Base.astro";
+import Breadcrumbs from "../../../../components/Breadcrumbs.astro";
+import Cats from "../../../../components/Cats.astro";
+import Meta from "../../../../components/Meta.astro";
+import Slider from "../../../../components/Slider.astro";
+import YouTube from "../../../../components/YouTube.astro";
+import Sidebar from "../../../../components/Sidebar.astro";
+import Comments from "../../../../components/Comments.astro";
+import { posts, variant, CATEGORIES, dims, TAGS } from "../../../../lib/content";
+import type { Post } from "../../../../lib/content";
+
+export function getStaticPaths() {
+  const all = posts();
+  return all.map((post, i) => {
+    const [year, month, day] = post.date.slice(0, 10).split("-");
+    return { params: { year, month, day, slug: post.slug }, props: { post, newer: all[i - 1], older: all[i + 1] } };
+  });
+}
+const { post: p, newer, older } = Astro.props as { post: Post; newer?: Post; older?: Post };
+const h = p.header;
+const sliderSizes: Record<string, { w: number; h: number }> = {};
+if (h?.type === "slider") for (const n of h.images!) sliderSizes[n] = await dims(p.folder, n);
+const recent = posts().slice(0, 6);
+const text = p.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const description = text.slice(0, 155) + (text.length > 155 ? "…" : "");
+const ogImage = p.featured ? p.url + variant(p.featured, "m") : undefined;
+---
+<Base title={p.title} bodyClass={`single single-post postid-${p.id} single-format-${p.format} none-trans-header`} description={description} image={ogImage}>
+  <Breadcrumbs crumbs={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog/" }, { label: CATEGORIES[p.categories[0]], href: `/category/${p.categories[0]}/` }, { label: p.title }]} />
+  <div id="content" class="container clearfix">
+    <div class="row single-article">
+      <div class="main col-lg-9 col-md-8 kt-sidebar kt-sidebar-right" id="ktmain" role="main">
+        <article class:list={["postclass post hentry", `format-${p.format}`, p.categories.map((c) => `category-${c}`)]}>
+          {h?.type === "image" && (
+            <div class="imghoverclass postfeat post-single-img">
+              <a href={p.url + h.image} data-rel="lightbox"><img src={p.url + variant(h.image!, "m")} srcset={`${p.url + variant(h.image!, "m")} 1040w, ${p.url + h.image} 2000w`} sizes={`(max-width: ${h.width}px) 100vw, ${h.width}px`} width={h.width} height={h.height} alt=""></a>
+            </div>
+          )}
+          {h?.type === "slider" && <section class="postfeat"><Slider base={p.url} images={h.images} sizes={sliderSizes} /></section>}
+          {h?.type === "video" && <section class="postfeat"><div style="max-width:1040px; margin:0 auto;"><YouTube id={h.youtube} thumb={`${p.url}youtube-${h.youtube}.jpg`} title={h.title} /></div></section>}
+          <Cats cats={p.categories} />
+          <header><h1 class="entry-title">{p.title}</h1><Meta date={p.date} /></header>
+          <div class="entry-content clearfix" set:html={p.body} />
+          <footer class="single-footer">
+            {p.tags.length > 0 && <span class="posttags"><i class="kt-icon-tag"></i>{p.tags.map((t) => <a href={`/tag/${t}/`} rel="tag">{TAGS[t] ?? t}</a>)}</span>}
+            <div class="post-footer-section">
+              <div class="kad-post-navigation clearfix">
+                {older && <div class="alignleft kad-previous-link"><a href={older.url} rel="prev"><span class="kt_postlink_meta kt_color_gray">Previous Post</span><span class="kt_postlink_title">{older.title}</span></a></div>}
+                {newer && <div class="alignright kad-next-link"><a href={newer.url} rel="next"><span class="kt_postlink_meta kt_color_gray">Next Post</span><span class="kt_postlink_title">{newer.title}</span></a></div>}
+              </div>
+            </div>
+          </footer>
+        </article>
+        <div id="blog_carousel_container" class="carousel_outerrim post-footer-section">
+          <h4 class="kt-title bottom-carousel-title post-carousel-title"><span>Recent Posts</span></h4>
+          <div class="blog-bottom-carousel"><div class="blog-carouselcontainer row-margin-small">
+            <div class="slick-slider blog_carousel kt-slickslider kt-content-carousel clearfix cv-carousel" data-slider-speed="9000">
+              {recent.map((r) => (
+                <div class="col-xxl-3 col-xl-4 col-md-4 col-sm-6 col-xs-6 col-ss-12 blog_carousel_item kt-slick-slide">
+                  <article class="blog_item blog_photo_item grid_item">
+                    <div class="imghoverclass img-margin-center blog-grid-photo"><div class="kt-intrinsic" style="padding-bottom:66.666666666667%;">
+                      {r.featured && <img src={r.url + variant(r.featured, "m")} width="420" height="280" style="object-fit:cover;width:100%;height:100%" alt="" loading="lazy">}
+                    </div></div>
+                    <div class="photo-postcontent"><div class="photo-post-bg"></div><div class="photo-postcontent-inner">
+                      <header><a href={r.url}><h5 class="entry-title">{r.title}</h5></a></header>
+                      <div class="kt-post-photo-added-content"><Cats cats={r.categories} /></div>
+                    </div><a href={r.url} class="photo-post-link" aria-label={r.title}></a></div>
+                  </article>
+                </div>
+              ))}
+            </div>
+          </div></div>
+        </div>
+        <Comments comments={p.comments} url={p.url} />
+      </div>
+      <Sidebar />
+    </div>
+  </div>
+</Base>

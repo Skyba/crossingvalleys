@@ -1,0 +1,53 @@
+---
+// One post in a list, as the theme rendered it on /blog/ and the archives (wide = home page, full width, 1440 crops).
+import type { Post } from "../lib/content";
+import { dims } from "../lib/content";
+import Cats from "./Cats.astro";
+import Meta from "./Meta.astro";
+import Crop from "./Crop.astro";
+import Slider from "./Slider.astro";
+import YouTube from "./YouTube.astro";
+interface Props { post: Post; wide?: boolean; first?: boolean }
+const { post: p, wide = false, first = false } = Astro.props;
+const W = wide ? 1440 : 1040;
+const size = p.featured ? await dims(p.folder, p.featured) : undefined;
+const sliderSizes: Record<string, { w: number; h: number }> = {};
+if (p.listing === "slider") for (const n of p.header!.images!) sliderSizes[n] = await dims(p.folder, n);
+const video = p.listingVideo ?? p.header?.youtube;
+const media = (p.listing === "landscape" && p.featured) || p.listing === "slider" || (p.listing === "video" && video) ? p.listing : null;
+const portrait = p.listing === "portrait" && p.featured;
+---
+<article class:list={["kad_blog_item clearfix post", { postclass: !wide }, `format-${p.format}`, p.categories.map((c) => `category-${c}`)]}>
+  <div class="row">
+    {portrait && (
+      <div class="col-xxl-25 col-xl-3 col-md-4 col-sm-4 col-xs-5 col-ss-4 post-image-container"><div class="imghoverclass img-margin-center"><a href={p.url} title={p.title}><Crop base={p.url} name={p.featured!} w={270} h={310} size={size} class="attachment-thumb wp-post-image kt-image-link" /></a></div></div>
+    )}
+    {!wide && !portrait && media && (
+      <div class="col-md-12 post-land-image-container">
+        {media === "landscape" && <div class="imghoverclass img-margin-center"><a href={p.url} title={p.title}><Crop base={p.url} name={p.featured!} w={W} h={400} size={size} class="attachment-thumb wp-post-image kt-image-link" eager={first} /></a></div>}
+        {media === "slider" && <Slider base={p.url} images={p.header!.images} href={p.url} w={W} sizes={sliderSizes} />}
+        {media === "video" && <YouTube id={video} thumb={`${p.url}youtube-${video}.jpg`} title={p.title} />}
+      </div>
+    )}
+    <div class:list={[portrait ? "col-xxl-95 col-xl-9 col-md-8 col-sm-8 col-xs-7" : "col-md-12", "post-text-container postcontent", { kttextpost: !portrait && !media }]}>
+      <div class="post-text-inner">
+        <Cats cats={p.categories} />
+        <header><a href={p.url}><h3 class="entry-title">{p.title}</h3></a><Meta date={p.date} /></header>
+        {wide && !portrait ? (
+          <div class="row kt-media-below-title">
+            {media && (
+              <div class="col-md-12 post-land-image-container">
+                {media === "landscape" && <div class="imghoverclass img-margin-center"><a href={p.url} title={p.title}><Crop base={p.url} name={p.featured!} w={W} h={400} size={size} class="attachment-thumb wp-post-image kt-image-link" eager={first} /></a></div>}
+                {media === "slider" && <Slider base={p.url} images={p.header!.images} href={p.url} w={W} sizes={sliderSizes} />}
+                {media === "video" && <YouTube id={video} thumb={`${p.url}youtube-${video}.jpg`} title={p.title} />}
+              </div>
+            )}
+            <div class="col-md-12 kt-media-below-text-content"><div class="entry-content" set:html={p.excerpt} /></div>
+          </div>
+        ) : (
+          <div class="entry-content" set:html={p.excerpt} />
+        )}
+      </div>
+    </div>
+  </div>
+</article>

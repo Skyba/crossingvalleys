@@ -1,0 +1,37 @@
+---
+import { posts, archives, usedCategories, CATEGORIES, longDate, variant } from "../lib/content";
+import SearchForm from "./SearchForm.astro";
+import Instagram from "./Instagram.astro";
+import Social from "./Social.astro";
+import insta from "../data/instagram.json";
+const recent = posts().slice(0, 5);
+const thumbs = posts().slice(0, 4);
+const sq = (p: (typeof thumbs)[number]) => p.featured && p.url + (p.featured.endsWith(".gif") ? p.featured : variant(p.featured, "sq"));
+---
+<aside id="ktsidebar" class="col-lg-3 col-md-4 kt-sidebar-container kad-sidebar">
+  <div class="sidebar">
+    <section class="widget-1 widget-first widget widget_search"><div class="widget-inner"><SearchForm /></div></section>
+    <section class="widget-2 widget widget_text"><div class="widget-inner"><h4 class="widget-title"><span>Instagram</span></h4><div class="textwidget"><Instagram items={insta.sidebar} cols={2} /></div></div></section>
+    <section class="widget-3 widget widget_recent_entries"><div class="widget-inner"><h4 class="widget-title"><span>Recent Posts</span></h4>
+      <ul>{recent.map((p) => <li><a href={p.url}>{p.title}</a></li>)}</ul>
+    </div></section>
+    <section class="widget-4 widget widget_archive"><div class="widget-inner"><h4 class="widget-title"><span>Archives</span></h4>
+      <ul>{archives().map((a) => <li><a href={`/${a.year}/${a.month}/`}>{a.label}</a></li>)}</ul>
+    </div></section>
+    <section class="widget-5 widget widget_categories"><div class="widget-inner"><h4 class="widget-title"><span>Categories</span></h4>
+      <ul>{usedCategories().map((c) => <li class="cat-item"><a href={`/category/${c}/`}>{CATEGORIES[c]}</a></li>)}</ul>
+    </div></section>
+    <section class="widget-6 widget kadence_recent_posts"><div class="widget-inner"><h4 class="widget-title"><span>Recent Posts</span></h4>
+      <ul>{thumbs.map((p, i) => (
+        <li class:list={["clearfix postclass", { "kt-top-featured": i === 0 }]}>
+          {p.featured && <a href={p.url} title={p.title} class="recentpost_featimg">{i === 0
+            ? <img src={p.url + variant(p.featured, "m")} width="420" height="280" style="aspect-ratio:420/280;object-fit:cover" class="attachment-widget-thumb wp-post-image" alt="" loading="lazy">
+            : <img src={sq(p)} width="60" height="60" class="attachment-widget-thumb wp-post-image" alt="" loading="lazy">}</a>}
+          <div class="recent_posts_widget_content"><div class="recent_posts_widget_content_inner"><a href={p.url} title={p.title} class="recentpost_title">{p.title}</a><span class="recentpost_date kt_color_gray">{longDate(p.date)}</span></div></div>
+        </li>
+      ))}</ul>
+      <div class="rpw_readmore_container"><a href="/" class="button posts_widget_readmore"><span>Read More</span></a></div>
+    </div></section>
+    <section class="widget-7 widget widget_kadence_social"><div class="widget-inner"><h4 class="widget-title"><span>Follow Me</span></h4><Social placement="top" /></div></section>
+  </div>
+</aside>

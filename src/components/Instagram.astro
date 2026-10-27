@@ -1,0 +1,14 @@
+---
+// A frozen copy of the Instagram feed widget as it last rendered (Smash Balloon plugin); the images are local.
+import data from "../data/instagram.json";
+const { items, cols } = Astro.props;
+---
+<div class={`cv-insta cv-insta-${cols}`}>
+  <a href={`https://www.instagram.com/${data.account}/`} target="_blank" rel="noopener" class="cv-insta-header"><img src="/instagram/basileslife.jpg" alt="" width="50" height="50"><span>{data.account}</span></a>
+  <div class="cv-insta-grid">
+    {items.map((it: { href: string; type: string; alt: string; image: string }) => (
+      <a href={it.href} target="_blank" rel="noopener" class={`cv-insta-item cv-insta-${it.type}`} title={it.alt.slice(0, 120)}><img src={it.image} alt={it.alt.slice(0, 200)} loading="lazy" width="320" height="320"></a>
+    ))}
+  </div>
+  <div class="cv-insta-follow"><a href={`https://www.instagram.com/${data.account}/`} target="_blank" rel="noopener"><i class="kt-icon-instagram"></i> Follow on Instagram</a></div>
+</div>

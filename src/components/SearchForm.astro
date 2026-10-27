@@ -1,0 +1,11 @@
+---
+// A static site has no search endpoint: the theme's search box hands the query to DuckDuckGo, restricted to this site.
+---
+<form role="search" method="get" class="search-form" action="https://duckduckgo.com/">
+  <label>
+    <span class="screen-reader-text">Search for:</span>
+    <input type="search" class="search-field" placeholder="Search …" value="" name="q">
+  </label>
+  <input type="hidden" name="sites" value="crossingvalleys.com">
+  <button type="submit" class="search-submit search-icon" aria-label="Search"><i class="kt-icon-search"></i></button>
+</form>
