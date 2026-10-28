@@ -1,13 +1,17 @@
 // crossingvalleys.com: a Worker with static assets. `npm run build` writes the static site to dist/; `wrangler deploy`
 // uploads it with this file as the only config (no framework adapter). worker/index.js runs first for every request
 // (old WordPress URLs, /feed/, staging noindex), then hands over to the assets.
-// Production has no route yet: crossingvalleys.com is still WordPress at OVH until Basile moves the domain (AGENTS.md).
+// Production: crossingvalleys.com and www (Custom Domains), since 2026-10-28; the zone moved from OVH DNS to Cloudflare.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "crossingvalleys",
   "compatibility_date": "2026-10-26",
   "workers_dev": false,
   "preview_urls": false,
+  "routes": [
+    { "pattern": "crossingvalleys.com", "custom_domain": true },
+    { "pattern": "www.crossingvalleys.com", "custom_domain": true }
+  ],
   "main": "./worker/index.js",
   // Comments written on the site (worker/comments.js); staging and production share this one database.
   "d1_databases": [{ "binding": "DB", "database_name": "crossingvalleys", "database_id": "6a8e185b-854b-41d7-b610-ab198a0b1111", "migrations_dir": "migrations" }],
